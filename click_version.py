@@ -71,3 +71,50 @@ def deletenote(id):
         return
     click.echo("No note found with id {}".format(id))
 
+
+@scrawl.command()
+@click.option('--limit', '-l', default=None, type=int)
+def listnotes(limit):
+    db = dbase()
+    cursor = db.cursor()
+
+    query_all = "SELECT * from `notes`"
+    cursor.execute(query_all)
+    all_notes = cursor.fetchall()
+    all_notes_count = len(all_notes)
+
+    if all_notes:
+        if not limit:
+            limit = len(all_notes)
+        if all_notes_count % limit:
+            page_count = all_notes_count // limit + 1
+        else:
+            page_count = all_notes_count // limit
+
+        click.echo(
+            "Number of notes found : '{}".format(all_notes_count))
+        offset = 0
+        for i in range(1, page_count + 1):
+            query = "SELECT * from `notes` LIMIT {} OFFSET {}".format(limit, offset)
+            offset += limit
+            cursor.execute(query)
+            notes = cursor.fetchall()
+            for note in notes:
+                click.echo("\n")
+                click.echo("Note id : {} , created on {} , last modified on {}".format(
+                    note['id'], note['date_created'], note['date_modified']))
+                click.echo("........." * 3)
+                click.echo(note['content'])
+            if all_notes_count > limit and page_count != i:
+                display_next = click.prompt(
+                    'Type "next" to display next set of {} records. Any other key to abort'.format(all_notes_count- (limit * i)))
+                click.echo(display_next)
+                if display_next != 'next':
+                    break
+
+                # click.echo('Continue? [yn] ', nl=False)
+                # c = click.getchar()
+                # click.echo(c)
+        return
+    click.echo("No notes found")
+
