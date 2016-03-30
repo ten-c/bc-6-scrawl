@@ -52,3 +52,22 @@ def viewnote(id):
             "Row id is {} and content - {}".format(notes[0]['id'], notes[0]['content']))
         return
     click.echo("No note found with id {}".format(id))
+
+
+@scrawl.command()
+@click.argument('id')
+def deletenote(id):
+    db = dbase()
+    cursor = db.cursor()
+    query = "SELECT * from `notes` where id = {}".format(id)
+    cursor.execute(query)
+    notes = cursor.fetchall()
+
+    if notes:
+        query = "DELETE from `notes` where id = {}".format(id)
+        cursor.execute(query)
+        db.commit()
+        click.echo("Note with id {} has been deleted".format(id))
+        return
+    click.echo("No note found with id {}".format(id))
+
