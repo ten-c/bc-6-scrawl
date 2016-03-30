@@ -32,3 +32,23 @@ def createnote(content):
     db.commit()
     db.close()
     click.echo(response)
+
+
+@scrawl.command()
+@click.argument('id', type=int)
+def viewnote(id):
+    db = dbase()
+    cursor = db.cursor()
+    query = "SELECT * from `notes` where id = {}".format(id)
+    cursor.execute(query)
+    notes = cursor.fetchall()
+
+    # while True:
+    #     row = cursor.fetchone()
+    #     if row is None:
+    #         break
+    if notes:
+        click.echo(
+            "Row id is {} and content - {}".format(notes[0]['id'], notes[0]['content']))
+        return
+    click.echo("No note found with id {}".format(id))
