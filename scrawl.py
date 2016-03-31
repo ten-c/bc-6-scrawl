@@ -1,4 +1,7 @@
-import click, sqlite3, json, csv
+import click
+import sqlite3
+import json
+import csv
 from datetime import datetime, date
 from collections import namedtuple, OrderedDict
 from firebase import firebase
@@ -28,13 +31,12 @@ def dict_factory(cursor, row):
     return d
 
 
-
-
 @scrawl.command()
-@click.argument('content',type=str,default="")
+@click.argument('content', type=str, default="")
 def createnote(content):
     if not content:
-        content = click.prompt('You didn"t provide any content for the note. Please provide one \n', type=str)
+        content = click.prompt(
+            'You didn"t provide any content for the note. Please provide one \n', type=str)
         # return
     db = dbase()
     cursor = db.cursor()
@@ -46,14 +48,16 @@ def createnote(content):
 
     db.commit()
     db.close()
-    click.echo('Successfuly saved note id {} to the database'.format(cursor.lastrowid))
+    click.echo(
+        'Successfuly saved note id {} to the database'.format(cursor.lastrowid))
 
 
 @scrawl.command()
 @click.argument('id', type=int, default=0)
 def viewnote(id):
     if not id:
-        id = click.prompt('You didn"t provide the id of the note to view. Please provide one \n', type=int)
+        id = click.prompt(
+            'You didn"t provide the id of the note to view. Please provide one \n', type=int)
     db = dbase()
     cursor = db.cursor()
     query = "SELECT * from `notes` where id = {}".format(id)
@@ -65,8 +69,12 @@ def viewnote(id):
     #     if row is None:
     #         break
     if notes:
-        click.echo(
-            "Row id is {} and content - {}".format(notes[0]['id'], notes[0]['content']))
+        click.echo("\n")
+        title_str = "Viewing note id : {} , created on {} , last modified on {}".format( \
+            notes[0]['id'], notes[0]['date_created'], notes[0]['date_modified'])
+        click.secho(title_str, bold=True)
+        click.echo("." * len(title_str))
+        click.echo(notes[0]['content'])
         return
     click.echo("No note found with id {}".format(id))
 
@@ -75,7 +83,8 @@ def viewnote(id):
 @click.argument('id', type=int, default=0)
 def deletenote(id):
     if not id:
-        id = click.prompt('You didn"t provide the id of the note to view. Please provide one \n', type=int)
+        id = click.prompt(
+            'You didn"t provide the id of the note to view. Please provide one \n', type=int)
     db = dbase()
     cursor = db.cursor()
     query = "SELECT * from `notes` where id = {}".format(id)
@@ -114,23 +123,25 @@ def listnotes(limit):
             page_count = all_notes_count // limit
 
         click.secho(
-            "Number of notes found : '{}".format(all_notes_count),blink=True)
+            "Number of notes found : '{}".format(all_notes_count), bold=True)
         offset = 0
         for i in range(1, page_count + 1):
-            query = "SELECT * from `notes` LIMIT {} OFFSET {}".format(limit, offset)
+            query = "SELECT * from `notes` LIMIT {} OFFSET {}".format(
+                limit, offset)
 
             offset += limit
             cursor.execute(query)
             notes = cursor.fetchall()
             for note in notes:
                 click.echo("\n")
-                click.echo("Note id : {} , created on {} , last modified on {}".format(
-                    note['id'], note['date_created'], note['date_modified']))
-                click.echo("........." * 3)
+                title_str = "Note id : {} , created on {} , last modified on {}".format(
+                    note['id'], note['date_created'], note['date_modified'])
+                click.secho(title_str, bold=True)
+                click.echo("." * len(title_str))
                 click.echo(note['content'])
             if all_notes_count > limit and page_count != i:
                 display_next = click.prompt(
-                    'Type "next" to display next set of {} records. Any other key to abort'.format(all_notes_count- (limit * i)))
+                    'Type "next" to display next set of {} records. Any other key to abort'.format(all_notes_count - (limit * i)))
                 # click.echo(display_next)
                 if display_next != 'next':
                     break
@@ -138,12 +149,14 @@ def listnotes(limit):
                 # click.echo('Continue? [yn] ', nl=False)
                 # c = click.getchar()
                 # click.echo(c)
+        click.secho(
+            "Number of notes found : '{}".format(all_notes_count), bold=True)
         return
     click.echo("No notes found")
 
 
 @scrawl.command()
-@click.argument('query_str',default="",type=str)
+@click.argument('query_str', default="", type=str)
 @click.option('--limit', '-l', default=None, type=int)
 def searchnotes(query_str, limit):
     if not query_str:
@@ -177,13 +190,14 @@ def searchnotes(query_str, limit):
             notes = cursor.fetchall()
             for note in notes:
                 click.echo("\n")
-                click.echo("Note id : {} , created on {} , last modified on {}".format(
-                    note['id'], note['date_created'], note['date_modified']))
-                click.echo("........." * 3)
+                title_str = "Note id : {} , created on {} , last modified on {}".format(
+                    note['id'], note['date_created'], note['date_modified'])
+                click.secho(title_str, bold=True)
+                click.echo("." * len(title_str))
                 click.echo(note['content'])
             if all_notes_count > limit and page_count != i:
                 display_next = click.prompt(
-                    'Type "next" to display next set of {} records. Any other key to abort'.format(all_notes_count- (limit * i)))
+                    'Type "next" to display next set of {} records. Any other key to abort'.format(all_notes_count - (limit * i)))
                 click.echo(display_next)
                 if display_next != 'next':
                     break
@@ -191,25 +205,26 @@ def searchnotes(query_str, limit):
                 # click.echo('Continue? [yn] ', nl=False)
                 # c = click.getchar()
                 # click.echo(c)
+
         return
     click.echo("No notes found")
+
 
 @scrawl.command()
 @click.option('--format', default='json')
 # dont provide file ext to avoid eg .json but --format=csv
 # @click.argument('filename', default='backup', type=click.File('wb'))
 @click.argument('filename', default='backup', type=str)
-def export(format,filename):
+def export(format, filename):
     export_format = format
     # click.echo(export_format)
     # click.pause()
     if export_format == 'json':
         filename += '.json'
-        file = click.open_file(filename,'w')
+        file = click.open_file(filename, 'w')
     else:
         filename += '.csv'
         file = open(filename, 'w')
-
 
     db = dbase()
     cursor = db.cursor()
@@ -233,7 +248,8 @@ def export(format,filename):
             for row in all_rows:
                 # csv_writer.writerow(row.values())
                 # above line sorts the keys in desc. Prefer explicit
-                csv_writer.writerow([row['id'],row['title'],row['content'],row['date_created'],row['date_modified']])
+                csv_writer.writerow(
+                    [row['id'], row['title'], row['content'], row['date_created'], row['date_modified']])
             file.close()
     else:
         click.echo('No data')
@@ -246,8 +262,7 @@ def export(format,filename):
 def _import(path, format):
     click.echo(path)
     click.pause()
-    file = click.open_file(path,'r')
-
+    file = click.open_file(path, 'r')
 
     if not file:
         click.echo('file doestnt exist')
@@ -276,7 +291,8 @@ def _import(path, format):
         # notes = json.loads(new_data, object_hook=lambda d: tuple(d.values()))
 
         notes = json.loads(new_data)
-        notes = [{k: note.get(k, defaults[k]) for k in defaults} for note in notes]
+        notes = [{k: note.get(k, defaults[k])
+                  for k in defaults} for note in notes]
         # click.echo(notes)
         # click.pause()
         db = dbase()
@@ -291,6 +307,7 @@ def _import(path, format):
     else:
         click.echo('No data ')
 
+
 @scrawl.command()
 @click.option('--url', default='https://bc-6-scrawl.firebaseio.com')
 def syncnotes(url):
@@ -302,7 +319,6 @@ def syncnotes(url):
         query_all = "SELECT * from `notes`"
         cursor.execute(query_all)
         all_notes = cursor.fetchall()
-
 
         # result = firebase_instance.post('/notes', json.dumps(all_notes))
         # result = firebase_instance.post('/notes', all_notes)
