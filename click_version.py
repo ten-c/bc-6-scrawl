@@ -1,5 +1,6 @@
 import click, sqlite3, json, csv
 from datetime import datetime, date
+from collections import namedtuple, OrderedDict
 
 
 
@@ -221,5 +222,49 @@ def export(format,filename):
                 # above line sorts the keys in desc. Prefer explicit
                 csv_writer.writerow([row['id'],row['title'],row['content'],row['date_created'],row['date_modified']])
             file.close()
+    else:
+        click.echo('No data')
+
+
+@scrawl.command()
+@click.argument('filename', default='import.json', type=click.File('r'))
+@click.option('--format', default='json')
+def _import(filename, format):
+
+    new_data = ""
+    # click.echo((filename.readlines.__doc__))
+    while True:
+        string_from_file = filename.readline()
+        new_data += string_from_file
+        # click.echo(type(string_from_file))
+        if not string_from_file:
+            break
+
+    # new_data = filename.read()
+
+    if new_data:
+        defaults = {
+            'title': None,
+            'content': " ",
+            'date_created': datetime.now(),
+            'date_modified': datetime.now()
+        }
+        # notes = json.loads(new_data, object_pairs_hook=namedtuple)
+        # notes = json.loads(new_data, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+        # notes = json.loads(new_data, object_hook=lambda d: tuple(d.values()))
+
+        notes = json.loads(new_data)
+        notes = [{k: note.get(k, defaults[k]) for k in defaults} for note in notes]
+        # click.echo(notes)
+        # click.pause()
+        db = dbase()
+        cursor = db.cursor()
+
+        # books = [(title4, author4, price4, year4),(title5, author5, price5, year5)]
+        cursor.executemany(
+            # '''INSERT INTO notes(title, content, date_created, date_modified) VALUES(?,?,?,?)''', [notes])
+            '''INSERT INTO notes(title, content, date_created, date_modified) VALUES(:title, :content, :date_created, :date_modified)''',
+            notes)
+        db.commit()
     else:
         click.echo('No data')
