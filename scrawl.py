@@ -31,8 +31,11 @@ def dict_factory(cursor, row):
 
 
 @scrawl.command()
-@click.argument('content')
+@click.argument('content',type=str,default="")
 def createnote(content):
+    if not content:
+        content = click.prompt('You didn"t provide any content for the note. Please provide one \n', type=str)
+        # return
     db = dbase()
     cursor = db.cursor()
 
@@ -43,12 +46,14 @@ def createnote(content):
 
     db.commit()
     db.close()
-    click.echo(response)
+    click.echo('Successfuly saved note id {} to the database'.format(cursor.lastrowid))
 
 
 @scrawl.command()
-@click.argument('id', type=int)
+@click.argument('id', type=int, default=0)
 def viewnote(id):
+    if not id:
+        id = click.prompt('You didn"t provide the id of the note to view. Please provide one \n', type=int)
     db = dbase()
     cursor = db.cursor()
     query = "SELECT * from `notes` where id = {}".format(id)
@@ -67,8 +72,10 @@ def viewnote(id):
 
 
 @scrawl.command()
-@click.argument('id')
+@click.argument('id', type=int, default=0)
 def deletenote(id):
+    if not id:
+        id = click.prompt('You didn"t provide the id of the note to view. Please provide one \n', type=int)
     db = dbase()
     cursor = db.cursor()
     query = "SELECT * from `notes` where id = {}".format(id)
@@ -76,10 +83,13 @@ def deletenote(id):
     notes = cursor.fetchall()
 
     if notes:
-        query = "DELETE from `notes` where id = {}".format(id)
-        cursor.execute(query)
-        db.commit()
-        click.echo("Note with id {} has been deleted".format(id))
+        if click.confirm('Are you sure?'):
+            query = "DELETE from `notes` where id = {}".format(id)
+            cursor.execute(query)
+            db.commit()
+            click.echo("Note with id {} has been deleted".format(id))
+        else:
+            click.echo("Delete action aborted.")
         return
     click.echo("No note found with id {}".format(id))
 
@@ -103,8 +113,8 @@ def listnotes(limit):
         else:
             page_count = all_notes_count // limit
 
-        click.echo(
-            "Number of notes found : '{}".format(all_notes_count))
+        click.secho(
+            "Number of notes found : '{}".format(all_notes_count),blink=True)
         offset = 0
         for i in range(1, page_count + 1):
             query = "SELECT * from `notes` LIMIT {} OFFSET {}".format(limit, offset)
@@ -121,7 +131,7 @@ def listnotes(limit):
             if all_notes_count > limit and page_count != i:
                 display_next = click.prompt(
                     'Type "next" to display next set of {} records. Any other key to abort'.format(all_notes_count- (limit * i)))
-                click.echo(display_next)
+                # click.echo(display_next)
                 if display_next != 'next':
                     break
 
@@ -133,9 +143,12 @@ def listnotes(limit):
 
 
 @scrawl.command()
-@click.argument('query_str')
+@click.argument('query_str',default="",type=str)
 @click.option('--limit', '-l', default=None, type=int)
 def searchnotes(query_str, limit):
+    if not query_str:
+        query_str = click.prompt('Please specify search string \n', type=str)
+
     db = dbase()
     cursor = db.cursor()
 
@@ -227,20 +240,29 @@ def export(format,filename):
 
 
 @scrawl.command()
-@click.argument('filename', default='import.json', type=click.File('r'))
+# @click.argument('filename', default='import.json', type=click.File('r'))
+@click.argument('path', default='import.json', type=click.Path(exists=True, file_okay=True, dir_okay=True, writable=True, readable=True, resolve_path=True))
 @click.option('--format', default='json')
-def _import(filename, format):
+def _import(path, format):
+    click.echo(path)
+    click.pause()
+    file = click.open_file(path,'r')
+
+
+    if not file:
+        click.echo('file doestnt exist')
+        return
 
     new_data = ""
-    # click.echo((filename.readlines.__doc__))
+    # click.echo((file.readlines.__doc__))
     while True:
-        string_from_file = filename.readline()
+        string_from_file = file.readline()
         new_data += string_from_file
         # click.echo(type(string_from_file))
         if not string_from_file:
             break
 
-    # new_data = filename.read()
+    # new_data = file.read()
 
     if new_data:
         defaults = {
@@ -267,7 +289,7 @@ def _import(filename, format):
             notes)
         db.commit()
     else:
-        click.echo('No data')
+        click.echo('No data ')
 
 @scrawl.command()
 @click.option('--url', default='https://bc-6-scrawl.firebaseio.com')
