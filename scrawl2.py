@@ -33,11 +33,20 @@ def dict_factory(cursor, row):
 
 @scrawl.command()
 @click.option('--title', type=str, prompt="Must proivde a title")
+# will have no impact if content is explicitly passed
+@click.option('--no_editor', is_flag=True)
 @click.argument('content', type=str, default="")
-def createnote(title,content):
+def createnote(title, content, no_editor):
     if not content:
-        content = click.prompt(
-            'You didn"t provide any content for the note. Please provide one \n', type=str)
+        if not no_editor:
+            content = click.edit('\n\n', require_save=True)
+            if content is None:
+                click.echo(
+                    'You didn"t provide any content for the note. Createnote aborted.')
+                return
+        else:
+            content = click.prompt(
+                'You didn"t provide any content for the note. Please provide one \n', type=str)
         # return
     db = dbase()
     cursor = db.cursor()
@@ -71,7 +80,7 @@ def viewnote(id):
     #         break
     if notes:
         click.echo("\n")
-        title_str = "Viewing note id : {} , created on {} , last modified on {}".format( \
+        title_str = "Viewing note id : {} , created on {} , last modified on {}".format(
             notes[0]['id'], notes[0]['date_created'], notes[0]['date_modified'])
         click.secho(title_str, bold=True)
         click.echo("." * len(title_str))
