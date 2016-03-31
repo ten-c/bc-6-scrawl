@@ -1,7 +1,7 @@
 import click, sqlite3, json, csv
 from datetime import datetime, date
 from collections import namedtuple, OrderedDict
-
+from firebase import firebase
 
 
 @click.group()
@@ -268,3 +268,26 @@ def _import(filename, format):
         db.commit()
     else:
         click.echo('No data')
+
+@scrawl.command()
+@click.option('--url', default='https://bc-6-scrawl.firebaseio.com')
+def syncnotes(url):
+    firebase_instance = firebase.FirebaseApplication(url, None)
+    if firebase_instance:
+        db = dbase()
+        cursor = db.cursor()
+
+        query_all = "SELECT * from `notes`"
+        cursor.execute(query_all)
+        all_notes = cursor.fetchall()
+
+
+        # result = firebase_instance.post('/notes', json.dumps(all_notes))
+        # result = firebase_instance.post('/notes', all_notes)
+        # Every time we send a POST request, the Firebase client generates a unique ID,
+        # Thus use put
+        result = firebase_instance.put(url, 'notes', all_notes)
+        if not result:
+            click.echo('Could not sync notes')
+    else:
+        click.echo('Invalid url provided')

@@ -6,6 +6,7 @@ setup(
     py_modules=['click_version'],
     install_requires=[
         'Click',
+        'python-firebase'
     ],
     entry_points='''
         [console_scripts]
