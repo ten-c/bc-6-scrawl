@@ -3,6 +3,7 @@ import sqlite3
 from datetime import datetime, date
 
 
+
 @click.group()
 def scrawl():
     """Scrawl - Python note-taking console app
@@ -13,9 +14,20 @@ def scrawl():
 
 def dbase():
     db = sqlite3.connect('data.db')
-    db.row_factory = sqlite3.Row
+    # prefer
+    # db.row_factory = sqlite3.Row
+    db.row_factory = dict_factory
 
     return db
+
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 
 
 @scrawl.command()
@@ -96,6 +108,7 @@ def listnotes(limit):
         offset = 0
         for i in range(1, page_count + 1):
             query = "SELECT * from `notes` LIMIT {} OFFSET {}".format(limit, offset)
+
             offset += limit
             cursor.execute(query)
             notes = cursor.fetchall()
@@ -177,4 +190,3 @@ def searchnotes(query_str, limit):
                 # click.echo(c)
         return
     click.echo("No notes found")
-
