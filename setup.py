@@ -7,10 +7,11 @@ setup(
     install_requires=[
         'Click',
         'python-firebase',
+        'colorama'
     ],
     entry_points='''
         [console_scripts]
         scrawl=scrawl:scrawl
-        scrawl2=scrawl2:scrawl
+        scrawl2=scrawl2:scrawl2
     ''',
 )
