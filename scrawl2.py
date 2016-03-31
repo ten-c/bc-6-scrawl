@@ -32,8 +32,9 @@ def dict_factory(cursor, row):
 
 
 @scrawl.command()
+@click.option('--title', type=str, prompt="Must proivde a title")
 @click.argument('content', type=str, default="")
-def createnote(content):
+def createnote(title,content):
     if not content:
         content = click.prompt(
             'You didn"t provide any content for the note. Please provide one \n', type=str)
@@ -44,7 +45,7 @@ def createnote(content):
     response = cursor.execute('''INSERT INTO notes
         (title, content, date_created,date_modified)
         VALUES(?,?,?,?)''',
-                              (" ", content, datetime.now(), datetime.now()))
+                              (title, content, datetime.now(), datetime.now()))
 
     db.commit()
     db.close()
