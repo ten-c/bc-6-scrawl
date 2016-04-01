@@ -7,7 +7,7 @@ setup(
     url='https://github.com/ten-c/bc-6-scrawl',
     author='Ten Chege',
     author_email='10.chege@gmail.com',
-    keywords='sample setuptools development',
+    keywords='scrawl, console, note, note taking',
     # py_modules=['scrawl','scrawl2'],
     packages=find_packages(),
     package_data={

@@ -63,6 +63,5 @@ target/
 .ipynb_checkpoints
 
 *sublime-*
-/*.json
 /*.csv
 commits.txt
