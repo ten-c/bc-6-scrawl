@@ -54,7 +54,8 @@ def cli(ctx,query_str, limit):
                     note['title'], note['date_created'], note['date_modified'])
                 click.secho(title_str, bold=True,fg="white")
                 # click.echo("." * len(title_str))
-                click.secho(note['content'],fg="cyan")
+                highlighted = note['content'].replace(query_str, click.style(query_str, bg="cyan",fg="white"))
+                click.secho(highlighted,fg="cyan")
             if all_notes_count > limit and page_count != i:
                 display_next = click.prompt(
                     click.style('\n Type ', fg="magenta") + \

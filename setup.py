@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 setup(
     name='scrawl',
-    version='1.0.4',
-    description='A python project to ',
+    version='1.0.6',
+    description='A python note-taking console app ',
     long_description="",
     url='https://github.com/ten-c/bc-6-scrawl',
     author='Ten Chege',
