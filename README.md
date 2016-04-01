@@ -11,7 +11,9 @@ A python based note-taking console app
  2. Python pip module
 
 ### Recommended / Optional:
- - virtualenv to seclude the project
+ - virtualenv to isolate the project
+    - [Virtualenv (unix based systems)](https://github.com/pypa/virtualenv)
+    - [Virtualenv (for windows)](https://github.com/davidmarble/virtualenvwrapper-win)
 
 ### Steps to get scrawling:
 
