@@ -12,7 +12,7 @@ def cli(ctx, content):
     """
     if not content:
         content = click.prompt(
-            'You didn"t provide any content for the note. Please provide one \n', type=str)
+            'You didn"t provide any content for the note. Please provide one ', type=str)
         # return
     db = ctx.database()
     cursor = db.cursor()

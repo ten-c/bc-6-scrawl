@@ -18,6 +18,8 @@ def cli(ctx, url):
         cursor.execute(query_all)
         all_notes = cursor.fetchall()
         from_firebase = firebase_instance.get('/notes',None)
+
+        print from_firebase
         from_firebase_listed = []
         if not from_firebase:
             from_firebase = []

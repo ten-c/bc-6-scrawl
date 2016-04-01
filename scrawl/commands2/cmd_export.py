@@ -1,6 +1,7 @@
 import click
 from scrawl.cli import pass_context
-
+import json
+import csv
 
 @click.command()
 @click.option('--csv', is_flag=True, help="Format to export data in. Default = json")
@@ -35,7 +36,7 @@ def cli(ctx,csv, filename):
     db = ctx.database()
     cursor = db.cursor()
 
-    query_all = "SELECT * from `notes_copy`"
+    query_all = "SELECT * from `notes`"
     cursor.execute(query_all)
     all_rows = cursor.fetchall()
 

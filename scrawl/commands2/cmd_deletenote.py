@@ -13,7 +13,7 @@ def cli(ctx,id):
     """
     if not id:
         id = click.prompt(
-            click.style('You didn"t provide the id of the note to delete. Please provide one \n',fg="white",bg="red"), type=int)
+            click.style('You didn"t provide the id of the note to delete. Please provide one',fg="white",bg="red"), type=int)
     db = ctx.database()
     cursor = db.cursor()
     query = "SELECT * from `notes` where id = {}".format(id)

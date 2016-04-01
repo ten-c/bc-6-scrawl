@@ -1,5 +1,7 @@
 import click
-from scrawl.cli import pass_context
+from scrawl.cli import pass_context, helpers
+from firebase import firebase
+
 
 @click.command()
 @click.option('--url', default='https://bc-6-scrawl.firebaseio.com', help="url to the firebase app. \n default = https://bc-6-scrawl.firebaseio.com")
@@ -16,22 +18,41 @@ def cli(ctx,url):
         query_all = "SELECT * from `notes`"
         cursor.execute(query_all)
         all_notes = cursor.fetchall()
+        from_firebase = firebase_instance.get('/notes',None)
 
-        # result = firebase_instance.post('/notes', json.dumps(all_notes))
-        # result = firebase_instance.post('/notes', all_notes)
-        # Every time we send a POST request, the Firebase client generates a unique ID,
-        # Thus use put
+        # print from_firebase
+        from_firebase_listed = []
+        if not from_firebase:
+            from_firebase = []
+
+        for firebase_key in from_firebase:
+            # print firebase_note
+            from_firebase_listed.append(from_firebase[firebase_key])
 
 
-        # result = firebase_instance.put(url, 'notes', all_notes)
+        to_download = helpers.to_sync(from_firebase_listed, all_notes)
 
-        with click.progressbar(all_notes,length=len(all_notes),
-                       label='Syncing ...', color=True,width=0,item_show_func=lambda item: 'uploading id {}'.format(item)) as bar:
+        to_upload = helpers.to_sync(all_notes, from_firebase_listed)
+
+        # print to_download
+
+        # combined = to_download + to_upload
+
+        # upload
+        with click.progressbar(to_upload, length=len(to_upload),
+                               label='Syncing ...', color=True, width=0) as bar:
             for note in bar:
-                result = firebase_instance.patch(url+'/notes', note)
-                # if not result:
-                #     click.secho('Could not sync notes',fg="white",bg="red")
-                # else:
-                #     click.secho('{} notes successfully synced'.format(len(all_notes)),fg="green")
+                result = firebase_instance.put(url , 'notes/{}'.format(note['checksum']), note)
+
+        # download
+        with click.progressbar(to_download, length=len(to_download),
+                               label='Syncing ...', color=True, width=0) as bar:
+            for note in bar:
+                cursor.execute('''INSERT INTO notes
+        (title, content, date_created,date_modified, checksum)
+        VALUES(?,?,?,?,?)''',
+                               (note['title'], note['content'], note['date_created'], note['date_modified'], note['checksum']))
+
+                db.commit()
     else:
         click.secho('Invalid url provided',fg="white",bg="red")

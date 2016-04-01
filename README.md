@@ -45,3 +45,14 @@ Once installed, scrawl exposes two interfaces to be used in issuing commands:
 >  - better UI
 >      + Command results, prompts and notifications are displayed in colorful manner as opposed to monochrome
 >  - addedd functionality tabulated below:
+
+<table><thead><tr><th>Command</th><th>New Arguments
+ & why</th><th>New Options
+ & why</th></tr></thead><tbody><tr><td>createnote</td><td>-</td><td>
+            [--title] : a note should be titled.
+
+            [--noeditor : ability to use editor or not. default = editor]
+            </td></tr><tr><td>viewnote</td><td></td><td></td></tr><tr><td>listnotes</td><td></td><td></td></tr><tr><td>searchnotes</td><td></td><td>
+                [--field]
+            </td></tr><tr><td>export</td><td>[filename]
+</td><td>[--csv]</td></tr><tr><td>importnotes</td><td>[path]</td><td></td></tr><tr><td>sync</td><td></td><td></td></tr></tbody></table>

@@ -1,6 +1,6 @@
 import click
-from scrawl.cli import pass_context
-
+from scrawl.cli import pass_context, helpers
+from datetime import datetime, date
 
 @click.command()
 @click.option('--title', type=str, prompt="Must proivde a title", help="The title for the note")
@@ -27,9 +27,9 @@ def cli(ctx, title, content, no_editor):
     cursor = db.cursor()
 
     response = cursor.execute('''INSERT INTO notes
-        (title, content, date_created,date_modified)
-        VALUES(?,?,?,?)''',
-                              (title, content, datetime.now(), datetime.now()))
+        (title, content, date_created,date_modified, checksum)
+        VALUES(?,?,?,?,?)''',
+                              (" ", content, datetime.now(), datetime.now(), helpers.hashnote(content)))
 
     db.commit()
     db.close()
