@@ -59,7 +59,7 @@ Once installed, scrawl exposes two interfaces to be used in issuing commands:
                 <br>
                 highlights the queried string
             </td></tr><tr><td>export</td><td>[filename]
-</td><td>[--csv]</td></tr><tr><td>importnotes</td><td>[path]</td><td></td></tr><tr><td>sync</td><td></td>Progress bars<td></td></tr></tbody></table>
+</td><td>[--csv]</td></tr><tr><td>importnotes</td><td>[path]</td><td></td></tr><tr><td>sync</td><td></td><td>Progress bars</td></tr></tbody></table>
 
 # App-related links
 - [Firebase link ](https://bc-6-scrawl.firebaseio.com/)
